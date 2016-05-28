@@ -32,7 +32,7 @@ func (input *Input) Ask(answers map[string]string, reader *bufio.Reader) error {
 }
 
 func (input *Input) printAndRead(reader *bufio.Reader) (string, error) {
-	fmt.Printf(input.formattedMessage())
+	fmt.Print(input.formattedMessage())
 	answer, err := reader.ReadString('\n')
 
 	if err != nil {

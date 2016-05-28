@@ -8,7 +8,7 @@ import (
 )
 
 type RawList struct {
-	Default string
+	Default int
 	Message string
 	Name    string
 	When    func(map[string]string) bool
@@ -33,29 +33,39 @@ func (list *RawList) Ask(answers map[string]string, reader *bufio.Reader) error 
 }
 
 func (list *RawList) printAndRead(reader *bufio.Reader) (string, error) {
-	fmt.Printf(list.formattedMessage())
+	fmt.Print(list.formattedMessage())
 
-	strIndex, err := reader.ReadString('\n')
+	strChoice, err := reader.ReadString('\n')
 	if err != nil {
 		fmt.Println(err.Error())
 		return list.printAndRead(reader)
 	}
+	strChoice = strings.TrimSpace(strChoice)
 
-	strIndex = strings.TrimSpace(strIndex)
-	index, err := strconv.Atoi(strIndex)
-	if err != nil || index < 1 || index > len(list.Choices) {
-		fmt.Printf("\nPlease pick a number between 1 and %d.\n", len(list.Choices))
-		return list.printAndRead(reader)
+	var choice int
+	if strChoice == "" && list.Default > 0 {
+		choice = list.Default
+	} else {
+		choice, err = strconv.Atoi(strChoice)
+		if err != nil || choice < 1 || choice > len(list.Choices) {
+			fmt.Printf("\nPlease pick a number between 1 and %d.\n", len(list.Choices))
+			return list.printAndRead(reader)
+		}
 	}
 
-	return list.Choices[index-1].Value, nil
+	index := choice - 1
+	return list.Choices[index].Value, nil
 }
 
 func (list *RawList) formattedMessage() string {
 	message := fmt.Sprintf("\n%s\n", list.Message)
 	for i, choice := range list.Choices {
-		message += fmt.Sprintf("%d) %s\n", i+1, choice.Message)
+		message += fmt.Sprintf("  %d) %s\n", i+1, choice.Message)
 	}
-	message += fmt.Sprint("Answer: ")
+	message += fmt.Sprint("Answer")
+	if list.Default != 0 {
+		message += fmt.Sprintf(" (default %d)", list.Default)
+	}
+	message += fmt.Sprint(": ")
 	return message
 }
