@@ -29,7 +29,7 @@ func (pw *Password) Ask(answers map[string]string, reader *bufio.Reader) error {
 }
 
 func (pw *Password) printAndRead(reader *bufio.Reader) (string, error) {
-	fmt.Printf(pw.formattedMessage())
+	fmt.Print(pw.formattedMessage())
 	byteAnswer, err := terminal.ReadPassword(syscall.Stdin)
 
 	if err != nil {
